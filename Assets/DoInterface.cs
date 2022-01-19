@@ -21,6 +21,8 @@ public class DoInterface : Cycle
     
     RaycastHit hit = new RaycastHit();
 
+    public Collider myCollider;
+
 
     public float distanceFromCamera;
     public override void WhileLiving( float v ){
@@ -57,7 +59,7 @@ public class DoInterface : Cycle
 
         if( holding == true ){
 
-            fullInterface.transform.position = ro + rd * distanceFromCamera;
+            fullInterface.transform.position = ro + rd * distanceOnPickUp;
         }
 
  
@@ -65,8 +67,12 @@ public class DoInterface : Cycle
 
 
     void DoClick(){
-        distanceOnPickUp = hit.distance;
-        holding = true;
+
+         if( hit.collider == myCollider ){
+            print(":sdasda");
+            distanceOnPickUp =  (hit.collider.gameObject.transform.position - mainCamera.transform.position).magnitude;;
+            holding = true;
+        }
     }
 
     void DoLetGo(){

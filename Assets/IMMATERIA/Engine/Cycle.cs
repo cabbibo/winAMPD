@@ -1,36 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System;
 using UnityEngine;
-using UnityEditor;
+using IMMATERIA;
 
-namespace IMMATERIA {
 [ExecuteInEditMode]
 public class Cycle : MonoBehaviour{
 
-[HideInInspector] public bool created = false;
+ [HideInInspector] public bool created = false;
 
-[HideInInspector] public bool begunGestation = false;
-[HideInInspector] public bool gestating = false;
-[HideInInspector] public bool gestated = false;
+ [HideInInspector] public bool begunGestation = false;
+ [HideInInspector] public bool gestating = false;
+ [HideInInspector] public bool gestated = false;
 
-[HideInInspector] public bool begunBirth = false;
-[HideInInspector] public bool birthing = false;
-[HideInInspector] public bool birthed = false;
+ [HideInInspector] public bool begunBirth = false;
+ [HideInInspector] public bool birthing = false;
+ [HideInInspector] public bool birthed = false;
 
-[HideInInspector] public bool begunLive = false;
-[HideInInspector] public bool living = false;
-[HideInInspector] public bool lived = false;
+ [HideInInspector] public bool begunLive = false;
+ [HideInInspector] public bool living = false;
+ [HideInInspector] public bool lived = false;
 
-[HideInInspector] public bool begunDeath = false;
-[HideInInspector] public bool dying = false;
-[HideInInspector] public bool died = false;
+ [HideInInspector] public bool begunDeath = false;
+ [HideInInspector] public bool dying = false;
+ [HideInInspector] public bool died = false;
 
-[HideInInspector] public bool destroyed = true;
+ [HideInInspector] public bool destroyed = true;
 
   public bool debug = false;
   public bool active = false;
-
+  public int executionID;
+  public Cycle parent;
   public Data data;
 
   public List<Cycle> Cycles;
@@ -57,24 +56,20 @@ public class Cycle : MonoBehaviour{
   Creation
 
 */
-
-public void Awake(){
-    if( Cycles == null ){ Cycles = new List<Cycle>();}
-}
   public virtual void _Create(){ DoCreate(); }
   public virtual void Create(){}
+
+
 
   protected void DoCreate(){
 
    float t = Time.time;
 
-    //print("DOCREAS");
-
- 
-
     //_Destroy();
    // SetStates();
   //  print( this );
+
+    //print("DOCREAS");
 
     if( created ){ DebugThis("Created Multiple Times"); }
     if( debug ){ DebugThis("DoCreate"); }
@@ -85,7 +80,11 @@ public void Awake(){
     Create();
 
 
-
+    if( Cycles == null ){
+      DebugThis(" SOMEHOW CYCLES IS NULL ");
+      Cycles = new List<Cycle>();
+    }
+    
     for (int i = Cycles.Count - 1; i >= 0; i--){
         if (Cycles[i] == null ){
             Cycles.RemoveAt(i);
@@ -94,7 +93,8 @@ public void Awake(){
 
 
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       if( c == null ){
         DebugThis( "SOME CYCLE NULL");
@@ -107,7 +107,7 @@ public void Awake(){
 
 
         if( c.data == null ){ c.data = data; }
-        if( data == null ){ print("fuhhh"); }
+        //if( data == null ){ print("fuhhh"); }
         c._Create();
 
       }
@@ -135,7 +135,8 @@ public void Awake(){
     _Bind();
 
     OnGestate();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       
       CheckSelfCycle(c);
       c._OnGestate();
@@ -153,7 +154,8 @@ public void Awake(){
 
   protected void DoGestating(float v){
     WhileGestating(v);
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       
       CheckSelfCycle(c);
       c._WhileGestating(v);
@@ -171,8 +173,8 @@ public void Awake(){
     if( debug ){ DebugThis("DoGestated"); }
     gestating = false;
     OnGestated();
-    foreach( Cycle c in Cycles ){
-
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       CheckSelfCycle(c);
       c._OnGestated();
     }
@@ -197,7 +199,8 @@ public void Awake(){
     if( debug ){ DebugThis("DoBirth"); }
     begunBirth = true;
     OnBirth();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnBirth();
@@ -212,7 +215,8 @@ public void Awake(){
 
   protected void DoBirthing(float v){
     WhileBirthing(v); 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._WhileBirthing(v);
@@ -227,7 +231,8 @@ public void Awake(){
     if( birthed ){ DebugThis("On Birthed Multiple Times"); }
     birthing = false;
     OnBirthed();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnBirthed();
@@ -249,7 +254,8 @@ public void Awake(){
     if( living ){ DebugThis("BegunLive Multiple Times"); }
     begunLive = true;
     OnLive();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnLive();
@@ -265,7 +271,8 @@ public void Awake(){
     if( active ){
       WhileLiving(v);
 
-      foreach( Cycle c in Cycles ){
+      for( int i = 0; i < Cycles.Count; i++){
+        Cycle c = Cycles[i];
         CheckSelfCycle(c);
         c._WhileLiving(v);
       }
@@ -280,7 +287,8 @@ public void Awake(){
     if( lived ){ DebugThis("on lived Multiple Times"); }
     living = false;
     OnLived();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnLived();
@@ -304,7 +312,8 @@ public void Awake(){
     if( begunDeath ){ DebugThis("On Die Multiple Times"); }
     begunDeath = true;
     OnDie();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnDie();
@@ -318,7 +327,8 @@ public void Awake(){
   protected void DoDying(float v){
 
     WhileDying(v);    
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._WhileDying(v);
@@ -332,7 +342,8 @@ public void Awake(){
     if( died ){ DebugThis("On Died Multiple Times"); }
     dying = false;
     OnDied();
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._OnDied();
@@ -350,14 +361,18 @@ public void Awake(){
   public virtual void Destroy(){}
 
   protected void DoDestroy(){
-    //   print( Cycles );
+    if( Cycles == null ){
+      DebugThis(" SOMEHOW CYCLES IS NULL ");
+      Cycles = new List<Cycle>();
+    }
     for (int i = Cycles.Count - 1; i >= 0; i--){
         if (Cycles[i] == null ){
             Cycles.RemoveAt(i);
         }
     }
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       if( c == null ){
 
@@ -390,8 +405,8 @@ public void Awake(){
 
 public virtual void _Activate(){
   Activate();
-
-  foreach( Cycle c in Cycles ){
+  for( int i = 0; i < Cycles.Count; i++){
+    Cycle c = Cycles[i];
 
     CheckSelfCycle(c);
     c._Activate();
@@ -405,7 +420,8 @@ public virtual void _Activate( bool propogate ){
   Activate();
 
   if( propogate ){
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
 
       CheckSelfCycle(c);
       c._Activate();
@@ -420,7 +436,8 @@ public virtual void Activate(){}
 
 public virtual void _Deactivate(){
   Deactivate();
-  foreach( Cycle c in Cycles ){
+  for( int i = 0; i < Cycles.Count; i++){
+    Cycle c = Cycles[i];
     CheckSelfCycle(c);
     c._Deactivate();
   }
@@ -432,7 +449,8 @@ public virtual void _Deactivate(bool propogate){
   Deactivate();
   
   if( propogate ){
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       CheckSelfCycle(c);
       c._Deactivate();
     }
@@ -472,7 +490,8 @@ void SetStates(){
     
     if( debug ){ WhileDebug(); }
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       CheckSelfCycle(c);
      // print(c);
       c._WhileDebug();
@@ -486,7 +505,8 @@ void SetStates(){
 
     bool can = true;
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       if( c == c2 ) can = false;
     }
 
@@ -499,13 +519,23 @@ void SetStates(){
 
     bool can = true;
 
-    foreach( Cycle c in Cycles ){
+    for( int i = 0; i < Cycles.Count; i++){
+      Cycle c = Cycles[i];
       if( c == c2 ) can = false;
     }
 
 
     if( can ) Cycles.Insert( 0, c2);
 
+  }  
+
+  protected void ResetCycles(){
+    
+    for (int i = Cycles.Count - 1; i >= 0; i--){
+        if (Cycles[i] == null ){
+            Cycles.RemoveAt(i);
+        }
+    }
   }
 
 
@@ -528,6 +558,21 @@ void SetStates(){
 
   }
 
+  public void SpinUp(){
+        _Destroy();
+        Reset(); 
+        _Create(); 
+        _OnGestate();
+        _OnGestated();
+        _OnBirth(); 
+        _OnBirthed();
+  }
+
+  public void SpinDown(){
+        _Destroy();
+        Reset(); 
+  }
+
 
   /*
     Helpers
@@ -545,22 +590,144 @@ void SetStates(){
   }
 
 
-  public void SafeGet( ref dynamic toGet , Type myType){
-   // print( toGet );
-    /*if( toGet == null ){
-      toGet = GetComponent(myType);
-      if( toGet == null ){
-        DebugThis("Couldn't Auto Assign " + toGet );
+  public void AddBinders(){
+    Cycle[] cycles =  gameObject.GetComponents<Cycle>();
+
+    foreach( Cycle c in cycles ){
+      if( c is Binder ){ SafeInsert(c);}
+    }
+  }
+
+
+  public void JumpStart(Cycle c){
+     if( data != null ){
+          c.data = data;
       }else{
-        print( toGet );
-        EditorGUIUtility.PingObject(toGet);
-        DebugThis("Auto-Assigned " + toGet );
+        DebugThis("NO DATA BAD BAD");
       }
-    }*/
+    SafeInsert(c);
+
+    c._Destroy();
+    c.Reset(); 
+    c._Create(); 
+    c._OnGestate();
+    c._OnGestated();
+    c._OnBirth(); 
+    c._OnBirthed();
+    c._Activate();
 
   }
 
 
+  // Add an array of cycles, to this cycle
+  // making sure that they get executed in
+  // order correctly
+  public void JumpStart(Cycle[] c){
 
-}
+
+    for( int i = 0; i < c.Length; i++ ){
+      if( data != null ){
+          c[i].data = data;
+      }else{
+        DebugThis("NO DATA BAD BAD");
+      }
+    }
+
+
+    for( int i = 0; i < c.Length; i++ ){
+      SafeInsert(c[i]);
+    }
+
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._Destroy();
+    }
+    
+    for( int i = 0; i < c.Length; i++ ){
+      c[i].Reset();
+    } 
+    
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._Create();
+    } 
+    
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnGestate();
+    }
+    
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnGestated();
+    }
+    
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnBirth();
+    } 
+    
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._OnBirthed();
+    }
+
+
+    for( int i = 0; i < c.Length; i++ ){
+      c[i]._Activate();
+    }
+
+  }
+
+
+  public void JumpDeath( Cycle c ){
+
+    if( data != null ){
+          c.data = data;
+      }else{
+        DebugThis("NO DATA BAD BAD");
+      }
+    c._OnDie();
+    c._OnDied();
+    c._Destroy();
+    Cycles.Remove(c);
+  }
+
+
+  public void JumpDeath( Cycle[] c){
+    for( int i = 0; i < c.Length; i++ ){
+      if( data != null ){
+          c[i].data = data;
+      }else{
+        DebugThis("NO DATA BAD BAD");
+      }
+    }
+
+    for( int i = 0; i < c.Length; i++ ){
+        c[i]._OnDie();
+    }
+    for( int i = 0; i < c.Length; i++ ){c[i]._OnDied();}
+    for( int i = 0; i < c.Length; i++ ){c[i]._Destroy();}
+    for( int i = 0; i < c.Length; i++ ){Cycles.Remove(c[i]);}
+  }
+
+
+  public void PrintParentStructure(){
+
+    bool hasParent = true;
+
+    string parentString = "";
+
+    Cycle parentCycle = this;
+    while( hasParent == true ){
+
+      if( parentCycle.parent != null ){
+        parentString += " || " +parentCycle.gameObject + ":" +parentCycle.GetType();
+        parentCycle = parentCycle.parent;
+      }else{
+        hasParent = false;
+      }
+
+    }
+
+
+
+    DebugThis(parentString);
+
+  }
+
 }

@@ -22,6 +22,8 @@ public class Data : Cycle
 
   public Transform camera;
   public HumanBuffer humans;
+
+  public InputEvents events;
   public God god;
 
 
