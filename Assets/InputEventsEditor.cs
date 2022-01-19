@@ -2,14 +2,13 @@
  using System.Collections;
  using System.Reflection;
  using UnityEditor;
- 
+
 [CustomEditor(typeof(InputEvents))]
 public class InputEventsEditor : CycleEditor{
 
 
   public bool down;
    void OnSceneGUI(){
-
 
       InputEvents events = (InputEvents)target;
       HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
@@ -31,12 +30,25 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
        // Camera.current.transform.position =events.MainCamera.transform.position;
       events.oP = events.p;
       events.oDown = events.Down;
-    
+
+
+float screenSizeMultiplier =  1.5f;
+
+    if(  Event.current.type == EventType.MouseMove ){
+        Vector2 mousePos = Event.current.mousePosition*screenSizeMultiplier;
+        mousePos.y = Camera.current.pixelHeight - mousePos.y;
+        events.p = mousePos;
+        Ray ray =Camera.current.ScreenPointToRay(mousePos);
+
+        events.RayOrigin = ray.origin;//Camera.current.ScreenToWorldPoint( new Vector3( events.p.x , events.p.y , Camera.current.nearClipPlane ) );
+        events.RayDirection = ray.direction;//(Camera.current.transform.position - events.RayOrigin).normalized;
+  
+    }
 
       if( Event.current.type == EventType.MouseDown  ){
         down = true;
         events.Down = 1;
-        Vector2 mousePos = Event.current.mousePosition * 1.25f;
+        Vector2 mousePos = Event.current.mousePosition * screenSizeMultiplier;
         mousePos.y = Camera.current.pixelHeight - mousePos.y;
         events.p = mousePos;
          Ray ray =Camera.current.ScreenPointToRay(mousePos);
@@ -53,7 +65,7 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
       }
       
       if (Event.current.type == EventType.MouseDrag && down ) {
-        Vector2 mousePos = Event.current.mousePosition* 1.25f;
+        Vector2 mousePos = Event.current.mousePosition*screenSizeMultiplier;
         mousePos.y = Camera.current.pixelHeight - mousePos.y;
         events.p = mousePos;
         Ray ray =Camera.current.ScreenPointToRay(mousePos);
@@ -158,3 +170,4 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
      
 
 }
+

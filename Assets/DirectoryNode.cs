@@ -15,50 +15,61 @@ public class DirectoryNode : Moveable
 
     public GameObject DirectoryNodePrefab;
 
-    FileInfo[] fileInfo;
-    string[] folderInfo;
+    public FileInfo[] fileInfo;
+    public string[] folderInfo;
     public GameObject[] subMoveables;
 
     public float spawnRadius;
+    public string parentDirectory;
+
+
+
+
 
 
    public override void Create(){
        
         lr = GetComponent<LineRenderer>();
-        text.text = directoryPath;
+        string tmpDir = directoryPath;
+
+        if( parentDirectory == null || parentDirectory == "" ){
+        }else{
+            text.text =directoryPath.Replace(parentDirectory,"");
+        }
+        directoryPath = tmpDir;
 
          DirectoryInfo dir = new DirectoryInfo(directoryPath);
-      
-    fileInfo = dir.GetFiles("*.*");
-    folderInfo = Directory.GetDirectories(directoryPath);
-
-    List<string> useableFolders = new List<string>();
-
-    
-    for( int i = 0; i<  folderInfo.Length; i++ ){
-
         
-        DirectoryInfo dir2 = new DirectoryInfo(folderInfo[i]);
+        fileInfo = dir.GetFiles("*.*");
+        folderInfo = Directory.GetDirectories(directoryPath);
 
-        bool canAdd = true;
+        List<string> useableFolders = new List<string>();
 
-        try
-        {
+        // getting a list of all folders we can go into!
+        for( int i = 0; i<  folderInfo.Length; i++ ){
+
             
-            FileInfo[] f = dir2.GetFiles("*.*");
+            DirectoryInfo dir2 = new DirectoryInfo(folderInfo[i]);
+
+            bool canAdd = true;
+
+            try
+            {
+                
+                FileInfo[] f = dir2.GetFiles("*.*");
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+
+                canAdd = false;
+            }
+
+            if( canAdd ){ useableFolders.Add(folderInfo[i]); }
+            
+
         }
-        catch (System.UnauthorizedAccessException ex)
-        {
 
-            canAdd = false;
-        }
-
-        if( canAdd ){ useableFolders.Add(folderInfo[i]); }
-        
-
-    }
-
-    folderInfo = useableFolders.ToArray();
+        folderInfo = useableFolders.ToArray();
 
 
     }
@@ -109,59 +120,13 @@ public class DirectoryNode : Moveable
         }
 
     public override void OnSelected( Receiver r ){
-        print("DIRECTORY PATH " + directoryPath);
-
-        print( fileInfo.Length );
         for( int i = 0; i<  fileInfo.Length; i++ ){
-            print( fileInfo[i] );
+           // print( fileInfo[i] );
         }
-
-         print( folderInfo.Length );
-         subMoveables = new GameObject[ folderInfo.Length ];
-        for( int i = 0; i<  folderInfo.Length; i++ ){
-
-            float angle = (float)i / (float) folderInfo.Length;
-            float nID = angle;
-
-            angle *= Mathf.PI;
-
-            GameObject child = GameObject.Instantiate(DirectoryNodePrefab);
-
-            Moveable m = child.GetComponent<Moveable>();
-
-
-            Vector3 outVec = (Mathf.Sin(angle)*Vector3.left -Mathf.Cos(angle) *Vector3.up);
-            outVec *= -1;
-
-            child.transform.position = transform.position + outVec  * spawnRadius  * (.5f + .5f * nID); 
-            child.transform.Rotate(Vector3.forward*angle);
-            m.targetPosition = transform.position + outVec * spawnRadius;
-            DirectoryNode dn = (DirectoryNode)m;
-            dn.directoryPath = folderInfo[i];
-            m.moveables = moveables;
-            moveables.moveables.Add(m);
-            moveables.JumpStart(m);
-            subMoveables[i] = child;
-            
-
-
-        }
-
-
-        transform.position = r.transform.position;
-        vel = new Vector3(0,0,0);
 
     }
 
-    public override void OnDeselected(Receiver r ){
-        for(int i = 0; i< subMoveables.Length; i++ ){
-            if( subMoveables[i]!= null ){
-                moveables.JumpDeath(subMoveables[i].GetComponent<Moveable>());
-                moveables.moveables.Remove(subMoveables[i].GetComponent<Moveable>());
-                DestroyImmediate(subMoveables[i]);
-            }
-        }
 
-        subMoveables= new GameObject[0];
-    }
+
+
 }

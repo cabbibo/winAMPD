@@ -24,6 +24,7 @@ public class Data : Cycle
   public HumanBuffer humans;
 
   public InputEvents events;
+  public Moveables moveables;
   public God god;
 
 
@@ -31,6 +32,7 @@ public class Data : Cycle
 
   public override void Create(){
     if( humans != null ){ SafeInsert(humans); }
+    if( events != null ){ SafeInsert(events); }
     if( camera == null ){ camera = Camera.main.transform; }
     if( god == null ){ GetComponent<God>(); }
   }

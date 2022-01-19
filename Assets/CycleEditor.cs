@@ -6,6 +6,7 @@ using IMMATERIA;
 
 [CanEditMultipleObjects]
 [CustomEditor(typeof(Cycle))]
+
 public class CycleEditor : Editor
 {
  public override bool RequiresConstantRepaint()
@@ -68,3 +69,5 @@ void OnEnable(){
 
    }
 }
+
+
