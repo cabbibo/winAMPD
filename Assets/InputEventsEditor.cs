@@ -3,6 +3,8 @@
  using System.Reflection;
  using UnityEditor;
 
+
+#if UNITY_EDITOR
 [CustomEditor(typeof(InputEvents))]
 public class InputEventsEditor : CycleEditor{
 
@@ -171,3 +173,4 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
 
 }
 
+#endif

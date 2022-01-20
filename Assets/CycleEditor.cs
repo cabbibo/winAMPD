@@ -4,9 +4,10 @@ using UnityEditor;
 
 using IMMATERIA;
 
+#if UNITY_EDITOR
+
 [CanEditMultipleObjects]
 [CustomEditor(typeof(Cycle))]
-
 public class CycleEditor : Editor
 {
  public override bool RequiresConstantRepaint()
@@ -70,4 +71,4 @@ void OnEnable(){
    }
 }
 
-
+#endif

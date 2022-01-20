@@ -241,6 +241,10 @@ public bool copyCameraPosition;
 
     void MouseInput()
     {
+
+
+        p = Input.mousePosition;
+        
         if (Input.GetMouseButton(0))
         {
             Down = 1;

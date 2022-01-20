@@ -289,8 +289,7 @@ public class Cycle : MonoBehaviour{
     OnLived();
     for( int i = 0; i < Cycles.Count; i++){
       Cycle c = Cycles[i];
-    
-      DebugThis("" +c);
+  
 
       CheckSelfCycle(c);
       c._OnLived();
