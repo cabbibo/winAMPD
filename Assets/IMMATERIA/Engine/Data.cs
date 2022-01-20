@@ -26,6 +26,7 @@ public class Data : Cycle
   public InputEvents events;
   public Moveables moveables;
   public God god;
+  public AudioPlayer audio;
 
 
   public float time;
@@ -33,6 +34,7 @@ public class Data : Cycle
   public override void Create(){
     if( humans != null ){ SafeInsert(humans); }
     if( events != null ){ SafeInsert(events); }
+    if( audio != null ){ SafeInsert(audio); }
     if( camera == null ){ camera = Camera.main.transform; }
     if( god == null ){ GetComponent<God>(); }
   }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using IMMATERIA;
+using TMPro;
 public class DirectoryBrowser : Receiver
 {
   
@@ -26,6 +27,12 @@ public class DirectoryBrowser : Receiver
     public AudioClip moveableSelectedClip;
 
 
+    public DirectoryNode hoveredNode;
+
+    public TextMeshPro selectedInfo;
+    public TextMeshPro hoveredInfo;
+
+
 public override void Create(){
     DestroySubNodes();
     DestroyParentNodesExcept(startNode);
@@ -40,7 +47,15 @@ public override void Create(){
 
             DestroySubNodesExecept((DirectoryNode)m);
             
+        
+            if( currentDirectory != null ){
+            if( currentDirectory != (DirectoryNode)m ){
 
+                OnMoveableRemoved(currentDirectory);
+
+            }
+            }
+    
 
             currentDirectory = (DirectoryNode)m;
 
@@ -79,19 +94,22 @@ public override void Create(){
             }*/
 
            // for( int i = 0; i < )
+           m.OnSelected(this);
 
-        }
-    
         oneHit.clip = moveableSelectedClip;
         oneHit.Play();
+
+   
+
+        }
+
 
   }
 
   public override void OnMoveableRemoved( Moveable m ){
 
-    /*if(m == currentDirectory ){
-        DestroySubNodes();
-    }*/ 
+      currentDirectory = null;
+      m.OnDeselected(this);
 
   }
 
@@ -104,9 +122,8 @@ public override void Create(){
 
   public override void OnMoveableExited(Moveable m){
 
-      print("exited");
 
-    if(  selectedObject == m ){
+     if(  selectedObject == m ){
         m.OnDeselected(this);
         m.selected = false;
         selectedObject = null;
@@ -238,6 +255,8 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
 
         DoReceiverLiving();
 
+
+
         for( int i = 0; i < subNodes.Count; i++ ){
 
             // pull towards center
@@ -248,6 +267,10 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
             float nID = angle;
 
             angle *= Mathf.PI;
+
+            if(subNodes[i].hovered|| subNodes[i].held ){
+                hoveredNode = subNodes[i];
+            }
 
 
             Vector3 outVec = (Mathf.Sin(angle)*Vector3.left -Mathf.Cos(angle) *Vector3.up);
@@ -260,12 +283,21 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
             // subNodes[i].AddForce(Vector3.right * 2);
 
                 // push away from others
-                for( int j = i+1; j < subNodes.Count; j++  ){
+                for( int j = 0; j < subNodes.Count; j++  ){
 
-                    Vector3 dif = subNodes[i].transform.position - subNodes[j].transform.position;
-                
-                    subNodes[i].AddForce(dif.normalized * .01f);
-                    subNodes[j].AddForce(-dif.normalized  * .01f);
+                    if( i != j ){
+
+                        Vector3 dif = subNodes[i].transform.position - subNodes[j].transform.position;
+                    
+                        subNodes[i].AddForce(dif.normalized * .02f);
+
+                        if( subNodes[i].hovered || subNodes[i].held ){
+                            subNodes[j].AddForce(-dif.normalized * .5f);
+                        }
+
+                        
+
+                    }
 
                 }
             }
@@ -274,6 +306,10 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
 
         for( int i = 0; i < parentNodes.Count; i++ ){
             
+
+              if(parentNodes[i].hovered|| parentNodes[i].held ){
+                hoveredNode = parentNodes[i];
+            }
             // only add forces if we aren't pulling!
 
             if(closestMoveable != parentNodes[i]){
@@ -289,6 +325,21 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
                 }
             }
         }
+        
+
+
+        if( hoveredNode != null ){
+            hoveredInfo.text = hoveredNode.name;
+        }else{
+            hoveredInfo.text = "nothignHovered";
+        }
+
+        if( selectedObject != null ){
+            selectedInfo.text = ((DirectoryNode)selectedObject).text.text;
+        }else{
+            selectedInfo.text = "nothing selected";
+        }
+
     }
 
 }

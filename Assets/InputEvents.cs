@@ -19,6 +19,7 @@ public class InputEvents : Cycle
     public EventTypes.BaseEvent OnTap;
     public EventTypes.BaseEvent OnDown;
     public EventTypes.BaseEvent OnUp;
+    public EventTypes.BaseEvent NewHover;
     public EventTypes.RayEvent WhileDown;
     public EventTypes.Vector2Event WhileDownDelta;
     public EventTypes.Vector2Event WhileDownDelta2;
@@ -134,13 +135,14 @@ public bool copyCameraPosition;
             oP2 = p2;
             oDown2 = Down2;
 
-#if UNITY_EDITOR
-            MouseInput();
-#elif UNITY_STANDALONE
-        MouseInput();
-#else
-        TouchInput();
-#endif
+
+            #if UNITY_EDITOR
+                    MouseInput();
+            #elif UNITY_STANDALONE
+                    MouseInput();
+            #else
+                    TouchInput();
+            #endif
 
 
             RayOrigin = Camera.main.ScreenToWorldPoint(new Vector3(p.x, p.y, Camera.main.nearClipPlane));

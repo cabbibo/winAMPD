@@ -27,7 +27,6 @@ public class Moveables: Cycle
 
         if( data.events.hitTag == "moveable"){
 
-            
             for( int i = 0; i < moveables.Count; i++ ){
 
                 if( moveables[i].collider == data.events.hit.collider ){
@@ -39,6 +38,8 @@ public class Moveables: Cycle
 
     }
 
+
+
     public void OnUp(){
         if( heldMoveable != null){
             heldMoveable.OnRelease();
@@ -46,10 +47,71 @@ public class Moveables: Cycle
         }
     }
 
+
+public string oHitTag;
+public string hitTag;
+
+public Collider hitCollider;
+public Collider oHitCollider;
+public Moveable hoveredMoveable;
     public override void WhileLiving(float v ){
+
+        hitTag = data.events.hitTag;
+        hitCollider = data.events.hit.collider;
+        if( hitCollider != oHitCollider){
+
+
+            if( hitTag == "moveable"){
+
+
+                for( int i = 0; i < moveables.Count; i++ ){
+
+                    if( moveables[i].collider == data.events.hit.collider ){
+                        
+                        if( hoveredMoveable == null ){
+                            HoverOver( moveables[i] );
+                        }else{
+                            if( moveables[i] != hoveredMoveable ){
+                                HoverOut( hoveredMoveable);
+                                HoverOver(moveables[i]);
+                            }
+                        }
+                    }
+                }
+
+
+            }
+
+            if( hitTag != "moveable"){
+                if( hoveredMoveable != null ){
+                    HoverOut(hoveredMoveable);
+                }
+            }
+
+            
+        }
+        oHitTag = hitTag;
+        oHitCollider = hitCollider;
+
         if(heldMoveable!= null ){
             heldMoveable.WhileHeld();
         }
+
+        if( hoveredMoveable != null ){
+            hoveredMoveable.WhileHovered();
+        }
+
+
+    }
+
+    public void HoverOver(Moveable m){
+        m.OnHoverOver();
+        hoveredMoveable = m;
+    }
+
+    public void HoverOut(Moveable m){
+        m.OnHoverOut();
+        hoveredMoveable = null;
     }
 
 

@@ -32,7 +32,7 @@ cameraSettings.farClip = events.MainCamera.GetComponent<Camera>().farClipPlane;
       events.oDown = events.Down;
 
 
-float screenSizeMultiplier =  1.5f;
+    float screenSizeMultiplier =  1.5f;
 
     if(  Event.current.type == EventType.MouseMove ){
         Vector2 mousePos = Event.current.mousePosition*screenSizeMultiplier;

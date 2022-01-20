@@ -5,7 +5,6 @@ using TMPro;
 using System.IO;
 using System;
 using System.Security.AccessControl;
-
 using System.Security.Principal;
 public class DirectoryNode : Moveable
 {
@@ -19,24 +18,18 @@ public class DirectoryNode : Moveable
     public string[] folderInfo;
     public GameObject[] subMoveables;
 
-    public float spawnRadius;
     public string parentDirectory;
 
-
-
-
-
-
    public override void Create(){
+
        
-        lr = GetComponent<LineRenderer>();
-        string tmpDir = directoryPath;
+        MoveableCreate();
 
         if( parentDirectory == null || parentDirectory == "" ){
+            text.text = directoryPath;
         }else{
             text.text =directoryPath.Replace(parentDirectory,"");
         }
-        directoryPath = tmpDir;
 
          DirectoryInfo dir = new DirectoryInfo(directoryPath);
         
@@ -119,12 +112,7 @@ public class DirectoryNode : Moveable
             return true;
         }
 
-    public override void OnSelected( Receiver r ){
-        for( int i = 0; i<  fileInfo.Length; i++ ){
-           // print( fileInfo[i] );
-        }
 
-    }
 
 
 
