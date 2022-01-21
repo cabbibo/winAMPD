@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using IMMATERIA;
 using TMPro;
+using MagicCurve;
 public class DirectoryBrowser : Receiver
 {
   
@@ -31,6 +32,8 @@ public class DirectoryBrowser : Receiver
     public TextMeshPro selectedInfo;
     public TextMeshPro hoveredInfo;
 
+    public Curve directorCurve;
+
 
 public GameObject DirectoryNodePrefab;
 public GameObject FileNodePrefab;
@@ -38,13 +41,26 @@ public float spawnRadius;
 public float fileSpawnRadius;
 
 
+public LineRenderer hoveredLR;
+public LineRenderer toFirstParentLR;
+public LineRenderer folderConnectionLR;
+
+
 public override void Create(){
     DestroySubNodes();
     DestroyFileNodes();
     
     DestroyParentNodesExcept(startNode);
-    startNode.transform.position = Vector3.left * 2;
+     startNode.transform.position = transform.position + Vector3.left * 2;
     selectedObject = null;
+    firstFrame = 0;
+    
+}
+
+public override void OnLived(){
+    print("dsds");
+    OnMoveableEntered(startNode);
+    OnMoveableReceived(startNode);
 }
 
   public override void OnMoveableReceived( Moveable m ){
@@ -116,6 +132,9 @@ public override void Create(){
 
         m.vel = Vector3.zero;
         m.transform.position = this.transform.position;
+
+        print(m.name);
+        print(this.transform.position);
 
         m.OnSelected(this);
 
@@ -333,13 +352,22 @@ public List<FileNode> GenerateFileChildren(Moveable move){
 
 
 
+    public int firstFrame = 0;
     public override void WhileLiving(float v)
     {
+        if( firstFrame == 1 ){
+            
+        OnMoveableReceived(startNode);
+    
+        } firstFrame ++;
 
 
         DoReceiverLiving();
 
 
+
+
+        hoveredNode = null;
 
         for( int i = 0; i < subNodes.Count; i++ ){
 
@@ -360,10 +388,20 @@ public List<FileNode> GenerateFileChildren(Moveable move){
             Vector3 outVec = (Mathf.Sin(angle)*Vector3.left -Mathf.Cos(angle) *Vector3.up);
             outVec *= -1;
 
+
+            Vector3 p = directorCurve.GetPositionFromValueAlongCurve(nID);
+
+            Quaternion r = directorCurve.GetRotationFromValueAlongCurve(nID);
+            r.eulerAngles += new Vector3(0,0,90);
+
+
             // only do forces if outside receiver
             if( subNodes[i].insideReceiver == null ){
-                subNodes[i].PullTowards( this.transform.position + outVec * spawnRadius , 3);
+                subNodes[i].PullTowards( p , 3);
 
+                subNodes[i].transform.rotation = Quaternion.Slerp( subNodes[i].transform.rotation , r ,.1f );
+                subNodes[i].transform.LookAt( Camera.main.transform);
+                subNodes[i].transform.Rotate( Vector3.up * 180);
             // subNodes[i].AddForce(Vector3.right * 2);
 
                 // push away from others
@@ -469,8 +507,17 @@ public List<FileNode> GenerateFileChildren(Moveable move){
 
         if( hoveredNode != null ){
             hoveredInfo.text = hoveredNode.name;
+            hoveredInfo.transform.position = transform.position - transform.forward * .5f;
+           // hoveredInfo.transform.position = hoveredNode.transform.position - transform.forward * .5f;
+            //hoveredInfo.transform.rotation = Quaternion.LookRotation(Vector3.forward);
+            hoveredLR.SetPosition(0,hoveredNode.transform.position );
+            hoveredLR.SetPosition(1,transform.position );
         }else{
             hoveredInfo.text = "nothignHovered";
+            hoveredLR.SetPosition(0,transform.position );
+            hoveredLR.SetPosition(1,transform.position );
+            
+            hoveredInfo.transform.position =Vector3.one * 1000;
         }
 
         if( selectedObject != null ){
@@ -482,6 +529,9 @@ public List<FileNode> GenerateFileChildren(Moveable move){
         }else{
             selectedInfo.text = "nothing selected";
         }
+
+
+
 
     }
 

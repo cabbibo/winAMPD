@@ -24,6 +24,9 @@ public class DirectoryNode : Moveable
 
     public string shortName;
 
+
+    public int maxTextLength = 30;
+
    public override void Create(){
 
        
@@ -36,6 +39,7 @@ public class DirectoryNode : Moveable
         }
 
         text.text = shortName;
+        name = shortName.Substring(0, Mathf.Min(shortName.Length  , maxTextLength));
 
          DirectoryInfo dir = new DirectoryInfo(directoryPath);
         

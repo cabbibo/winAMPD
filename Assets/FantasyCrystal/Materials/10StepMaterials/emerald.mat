@@ -64,7 +64,7 @@ Material:
     - _ColorMultiplier: 1
     - _Cutoff: 0.5
     - _DeltaSize: 0.01
-    - _DeltaStepSize: 0.1
+    - _DeltaStepSize: 0.001
     - _DensityFalloff: 0.4
     - _DensityImportance: 5.85
     - _DensityRadius: 0.4
@@ -74,13 +74,13 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _IndexOfRefraction: 0.8
+    - _IndexOfRefraction: 0.96
     - _Metallic: 0
     - _Mode: 0
-    - _NoiseImportance: 200
-    - _NoiseSharpness: 4
-    - _NoiseSize: 6.59
-    - _NoiseSubtractor: 0
+    - _NoiseImportance: 100000000
+    - _NoiseSharpness: 33
+    - _NoiseSize: 200
+    - _NoiseSubtractor: -0.29
     - _NumSteps: 10
     - _OcclusionStrength: 1
     - _OffsetMultiplier: 0
@@ -88,18 +88,18 @@ Material:
     - _Parallax: 0.02
     - _ReflectionMultiplier: 0.3
     - _ReflectionSharpness: 1
-    - _RefractionBackgroundSampleExtraStep: 0.16
+    - _RefractionBackgroundSampleExtraStep: 0
     - _Size: 0.1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _StepRefractionMultiplier: 0.016
+    - _StepRefractionMultiplier: 0
     - _UVSec: 0
     - _WhichFace: 0
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0, g: 0.2264151, b: 0.073695906, a: 1}
-    - _CenterOrbColor: {r: 0, g: 0.5660378, b: 0.25810868, a: 1}
+    - _CenterOrbColor: {r: 0, g: 0, b: 0, a: 1}
     - _CenterOrbOffset: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color1: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
