@@ -16,9 +16,13 @@ public class DirectoryNode : Moveable
 
     public FileInfo[] fileInfo;
     public string[] folderInfo;
+    
+    public string[] audioFiles;
     public GameObject[] subMoveables;
 
     public string parentDirectory;
+
+    public string shortName;
 
    public override void Create(){
 
@@ -26,15 +30,24 @@ public class DirectoryNode : Moveable
         MoveableCreate();
 
         if( parentDirectory == null || parentDirectory == "" ){
-            text.text = directoryPath;
+            shortName = directoryPath;
         }else{
-            text.text =directoryPath.Replace(parentDirectory,"");
+            shortName = GetShortName(parentDirectory,directoryPath);//directoryPath.Replace(parentDirectory +"\","");
         }
+
+        text.text = shortName;
 
          DirectoryInfo dir = new DirectoryInfo(directoryPath);
         
         fileInfo = dir.GetFiles("*.*");
         folderInfo = Directory.GetDirectories(directoryPath);
+
+        audioFiles = System.IO.Directory.GetFiles(directoryPath, "*.wav");
+
+        if( audioFiles.Length> 0 ){
+            print("WE GOT WAVES");
+            print(directoryPath);
+        }
 
         List<string> useableFolders = new List<string>();
 
@@ -46,14 +59,19 @@ public class DirectoryNode : Moveable
 
             bool canAdd = true;
 
-            try
-            {
-                
+            try{
                 FileInfo[] f = dir2.GetFiles("*.*");
+            }catch (System.UnauthorizedAccessException ex){
+                canAdd = false;
             }
-            catch (System.UnauthorizedAccessException ex)
-            {
 
+
+            string sn = GetShortName(directoryPath,folderInfo[i]);
+
+            string firstCharacter = sn.Substring(0, 1);
+
+            if( firstCharacter == "." ){
+                print("REMOVING : " + sn);
                 canAdd = false;
             }
 
@@ -65,7 +83,11 @@ public class DirectoryNode : Moveable
         folderInfo = useableFolders.ToArray();
 
 
+
     }
+public string GetShortName( string directory, string file){
+    return file.Replace(directory +@"\", "" );
+}
 
     public static bool HasFolderWritePermission(string destDir)
 {

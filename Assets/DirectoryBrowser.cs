@@ -9,11 +9,10 @@ public class DirectoryBrowser : Receiver
   public List<DirectoryNode> parentNodes;
 
   public List<DirectoryNode> subNodes;
+  public List<FileNode> fileNodes;
 
   public DirectoryNode startNode;
 
-
-  public DirectoryNode currentDirectory;
 
     public Moveables moveables;
 
@@ -27,14 +26,22 @@ public class DirectoryBrowser : Receiver
     public AudioClip moveableSelectedClip;
 
 
-    public DirectoryNode hoveredNode;
+    public Moveable hoveredNode;
 
     public TextMeshPro selectedInfo;
     public TextMeshPro hoveredInfo;
 
 
+public GameObject DirectoryNodePrefab;
+public GameObject FileNodePrefab;
+public float spawnRadius;
+public float fileSpawnRadius;
+
+
 public override void Create(){
     DestroySubNodes();
+    DestroyFileNodes();
+    
     DestroyParentNodesExcept(startNode);
     startNode.transform.position = Vector3.left * 2;
     selectedObject = null;
@@ -45,72 +52,85 @@ public override void Create(){
 
         if(m.GetType() == typeof(DirectoryNode)){
 
-            DestroySubNodesExecept((DirectoryNode)m);
+                DirectoryNode fNode = (DirectoryNode)m;
+
+                DestroySubNodesExecept(fNode);
+                DestroyFileNodes();
             
         
-            if( currentDirectory != null ){
-            if( currentDirectory != (DirectoryNode)m ){
+                if( selectedObject != null ){
+                if( selectedObject != m ){
 
-                OnMoveableRemoved(currentDirectory);
+                    OnMoveableRemoved(m);
 
-            }
-            }
+                }
+                }
+
+
+
+                // Check to see if its a parent node
+                int parentID = -1;
+                for( int i = 0; i <parentNodes.Count; i++ ){
+                    if( parentNodes[i] == fNode ){
+                        parentID = i;
+                    }
+                }
+
+                // if it is, then go an destroy all the nodes beneath it
+                if( parentID >= 0 ){
+                    for( int i = parentNodes.Count-1; i > parentID; i-- ){    
+                        DestroyParentNode(i);
+                    }
+                }
+
+                List<DirectoryNode> children = GenerateChildren(m);
+                subNodes = children;
+
+                List<FileNode> c2 = GenerateFileChildren(m);
+                fileNodes = c2;
+                
+                // Add it in as a parent node if we haven't yet!
+                if( parentID < 0){ parentNodes.Add(fNode); }
+
+
     
 
-            currentDirectory = (DirectoryNode)m;
+        }
 
 
-            // If its a parent node, destroy all of our sub directories
-            int parentID = -1;
-        
-            for( int i = 0; i <parentNodes.Count; i++ ){
-                if( parentNodes[i] == currentDirectory ){
-                    parentID = i;
-                }
-            }
+         if(m.GetType() == typeof(FileNode)){
 
-            if( parentID >= 0 ){
-                for( int i = parentNodes.Count-1; i > parentID; i-- ){    
-                    DestroyParentNode(i);
-                }
-            }
-
-
-
-            List<DirectoryNode> children = GenerateChildren(m);
-            subNodes = children;
-
-
-            m.vel = Vector3.zero;
-            m.transform.position = this.transform.position;
-
-
+                FileNode fNode = (FileNode)m;
+                //DestroySubNodes();
             
-           if( parentID < 0){ parentNodes.Add(currentDirectory); }
-            
+                fNode.PlayAudio();
 
-            /*for( int i = 0; i < parentNodes.Count; i++ ){
-                parentNodes[i].targetPosition = this.transform.position + Vector3.left * (parentNodes.Count-i);
-            }*/
+           
+   
 
-           // for( int i = 0; i < )
-           m.OnSelected(this);
+        }
 
         oneHit.clip = moveableSelectedClip;
         oneHit.Play();
 
-   
 
-        }
+        m.vel = Vector3.zero;
+        m.transform.position = this.transform.position;
+
+        m.OnSelected(this);
 
 
   }
 
   public override void OnMoveableRemoved( Moveable m ){
 
-      currentDirectory = null;
-      m.OnDeselected(this);
+       if(m.GetType() == typeof(FileNode)){
+            FileNode fNode = (FileNode)m;
+            fNode.StopAudio();
+       }
 
+           
+      m.OnDeselected(this);
   }
 
 
@@ -135,10 +155,6 @@ public override void Create(){
       
   }
 
-
-
-public GameObject DirectoryNodePrefab;
-public float spawnRadius;
 
 
 public void DestroyParentNodes(){
@@ -175,6 +191,35 @@ public void DestroyParentNodesExcept(DirectoryNode n){
 
     parentNodes.Clear();
 }
+public void DestroyFileNodes(){
+
+    for(int i = 0; i< fileNodes.Count; i++ ){
+        if( fileNodes[i]!= null ){
+            moveables.JumpDeath(fileNodes[i].GetComponent<Moveable>());
+            moveables.moveables.Remove(fileNodes[i].GetComponent<Moveable>());
+            DestroyImmediate(fileNodes[i].gameObject);
+        }
+    }
+
+    fileNodes.Clear();
+
+}
+public void DestroyFileNodesExcept(FileNode f){
+
+    for(int i = 0; i< fileNodes.Count; i++ ){
+        if( fileNodes[i]!= null && fileNodes[i]!= f){
+            moveables.JumpDeath(fileNodes[i].GetComponent<Moveable>());
+            moveables.moveables.Remove(fileNodes[i].GetComponent<Moveable>());
+            DestroyImmediate(fileNodes[i].gameObject);
+        }
+    }
+
+    fileNodes.Clear();
+
+}
+
+
+
 public void DestroySubNodes(){
 
     for(int i = 0; i< subNodes.Count; i++ ){
@@ -203,6 +248,7 @@ public void DestroySubNodesExecept(DirectoryNode n){
     subNodes.Clear();
 
 }
+
 
 
 public List<DirectoryNode> GenerateChildren(Moveable move){
@@ -239,13 +285,51 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
             moveables.JumpStart(m);
 
             children.Add((DirectoryNode)m);
-            
-
 
         }
 
         return children;
     }
+
+
+public List<FileNode> GenerateFileChildren(Moveable move){
+
+        DirectoryNode topNode = (DirectoryNode)move;
+
+        List<FileNode> children = new List<FileNode>();
+        for( int i = 0; i<  topNode.audioFiles.Length; i++ ){
+
+            float angle = (float)i / (float) topNode.audioFiles.Length;
+            float nID = angle;
+
+            angle *= Mathf.PI;
+
+            GameObject child = GameObject.Instantiate(FileNodePrefab);
+
+            Moveable m = child.GetComponent<Moveable>();
+
+
+            Vector3 outVec = (Mathf.Sin(angle)*Vector3.left -Mathf.Cos(angle) *Vector3.up);
+            outVec *= -1;
+
+            child.transform.position = transform.position + outVec * fileSpawnRadius; 
+            child.transform.Rotate(Vector3.forward*((-angle/Mathf.PI) * 180 + 90));
+            
+            FileNode fn = (FileNode)m;
+            fn.path = topNode.audioFiles[i];
+   
+            child.name = fn.path;
+
+            moveables.moveables.Add(m);
+            moveables.JumpStart(m);
+
+            children.Add((FileNode)m);
+
+        }
+
+        return children;
+    }
+
 
 
 
@@ -304,6 +388,61 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
 
         }
 
+
+
+        for( int i = 0; i < fileNodes.Count; i++ ){
+
+
+            // pull towards center
+            //fileNodes[i].PullTowards( this.transform.position , .5f );
+
+
+            float angle = (float)i / (float) fileNodes.Count;
+            float nID = angle;
+
+            angle *= Mathf.PI;
+
+            if(fileNodes[i].hovered|| fileNodes[i].held ){
+                hoveredNode = fileNodes[i];
+            }
+
+
+            Vector3 outVec = (Mathf.Sin(angle)*Vector3.left -Mathf.Cos(angle) *Vector3.up);
+            outVec *= -1;
+
+            // only do forces if outside receiver
+            if( fileNodes[i].insideReceiver == null ){
+                fileNodes[i].PullTowards( this.transform.position + outVec * fileSpawnRadius , 3);
+
+            // fileNodes[i].AddForce(Vector3.right * 2);
+
+                // push away from others
+                for( int j = 0; j < fileNodes.Count; j++  ){
+
+                    if( i != j ){
+
+                        Vector3 dif = fileNodes[i].transform.position - fileNodes[j].transform.position;
+                    
+                        fileNodes[i].AddForce(dif.normalized * .02f);
+
+                        if( fileNodes[i].hovered || fileNodes[i].held ){
+                            fileNodes[j].AddForce(-dif.normalized * .5f);
+                        }
+
+                        
+
+                    }
+
+                }
+            }
+
+        }
+
+
+
+
+
+
         for( int i = 0; i < parentNodes.Count; i++ ){
             
 
@@ -335,7 +474,11 @@ public List<DirectoryNode> GenerateChildren(Moveable move){
         }
 
         if( selectedObject != null ){
-            selectedInfo.text = ((DirectoryNode)selectedObject).text.text;
+            if(selectedObject.GetType() == typeof(DirectoryNode)){
+                selectedInfo.text = ((DirectoryNode)selectedObject).text.text;
+            }else if( selectedObject.GetType() == typeof(FileNode)){
+                selectedInfo.text = ((FileNode)selectedObject).path;
+            }
         }else{
             selectedInfo.text = "nothing selected";
         }

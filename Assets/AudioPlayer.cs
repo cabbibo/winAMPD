@@ -14,6 +14,8 @@ public class AudioPlayer : Cycle{
 
   public AudioMixer master;
 
+  public AudioSource mainAudio;
+
     public static AudioPlayer Instance { get; private set; }
 
     private static AudioPlayer _instance;
